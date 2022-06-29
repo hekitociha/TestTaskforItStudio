@@ -1,0 +1,36 @@
+﻿@model TestTask.Models.Photo
+
+@{
+    ViewData["Title"] = "Редактировать фото";
+}
+
+<h1>Редактировать фото</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ImageSrc" />
+            <input type="hidden" asp-for="uploadTime" />
+            <input type="hidden" asp-for="isCopied" />
+            <div class="form-group">
+                <label class="control-label">Discription</label>
+                <input asp-for="Desription" class="form-control" />
+                <span asp-validation-for="Desription" class="text-danger"></span>
+            </div>
+            <img src="@Model.ImageSrc"/>
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="GetPhotos">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
