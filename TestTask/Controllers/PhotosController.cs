@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
 using TestTask.Data;
 using TestTask.Models;
 
@@ -22,94 +21,142 @@ namespace TestTask.Controllers
             _context2 = context2;
         }
 
-        // GET: api/Photos
-        [Route("/photos")]
-        [HttpGet]
-        public async Task<ActionResult<Photo>> GetPhotos()
+        // GET: PhotosController2
+        public async Task<IActionResult> Index()
         {
-            return _context.Photos != null ? View(await _context.Photos.ToListAsync()) : Problem("Фото не найдены");
+            return _context.Photos != null ?
+                        View(await _context.Photos.ToListAsync()) :
+                        Problem("Entity set 'AppDBContent.Photos'  is null.");
         }
-        public async Task<IActionResult> Copying(int? id)
+
+        // GET: PhotosController2/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Photos == null)
             {
                 return NotFound();
             }
 
-            var photos = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id);
-            if (photos == null)
+            var photo = await _context.Photos
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (photo == null)
             {
                 return NotFound();
             }
-            if (!photos.isCopied)
+            if (!photo.isCopied)
             {
-                photos.isCopied = true;
+                photo.isCopied = true;
                 isCopiedPhoto isCopiedPhoto = new isCopiedPhoto();
-                isCopiedPhoto.photoId = photos.Id;
+                isCopiedPhoto.photoId = photo.Id;
+                isCopiedPhoto.photoDescription = photo.Description;
+                isCopiedPhoto.photoData = isCopiedPhoto.GetPhoto(photo.ImageSrc);
                 _context2.Add(isCopiedPhoto);
                 await _context.SaveChangesAsync();
                 await _context2.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(GetPhotos));
+            return RedirectToAction(nameof(Index));
         }
 
-        // POST: api/Photos
-        [Route("/photos/new")]
+        // GET: PhotosController2/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: PhotosController2/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Desription,Image,isCopied")] Photo photos)
+        public async Task<IActionResult> Create([Bind("Id,Description,Image,isCopied")] Photo photo)
         {
             if (ModelState.IsValid)
             {
-                photos.uploadTime = DateTime.Now;
-                photos.ImageSrc = photos.getSrc();
-                _context.Add(photos);
+                photo.uploadTime = DateTime.Now;
+                photo.ImageSrc = photo.getSrc(photo);
+                _context.Photos.Add(photo);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(GetPhotos));
+                return RedirectToAction(nameof(Index));
             }
             return View();
         }
-        [HttpPut]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ImageSrc,uploadTime,CopyCheck,Disription")] Photo photo)
-        {
-            _context.Update(photo);
-            await _context.SaveChangesAsync();
 
-            //return View(photos);
-            return RedirectToAction(nameof(GetPhotos));
-        }
-
-        // DELETE: api/Photos/5
-        [HttpDelete, ActionName("Delete")]
-        public async Task<IActionResult> DeletePhoto(int id)
+        // GET: PhotosController2/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            if (_context.Photos == null)
+            if (id == null || _context.Photos == null)
             {
-                return Problem("Фото не найдены");
+                return NotFound();
             }
+
             var photo = await _context.Photos.FindAsync(id);
             if (photo == null)
             {
                 return NotFound();
             }
-
-            System.IO.File.Delete(photo.ImageSrc);
-            if (photo.isCopied)
-            {
-                var isCopiedPhoto = _context2.isCopiedPhotos.Where(p => p.photoId == id).FirstOrDefault();
-                _context2.isCopiedPhotos.Remove(isCopiedPhoto);
-            }
-            _context.Photos.Remove(photo);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return View(photo);
         }
 
+        // POST: PhotosController2/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ImageSrc,uploadTime,isCopied,Description")] Photo photo)
+        {
+            _context.Update(photo);
+            await _context.SaveChangesAsync();
+
+            //return View(photos);
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: PhotosController2/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null || _context.Photos == null)
+            {
+                return NotFound();
+            }
+
+            var photo = await _context.Photos
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (photo == null)
+            {
+                return NotFound();
+            }
+
+            return View(photo);
+        }
+
+        // POST: PhotosController2/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (_context.Photos == null)
+            {
+                return Problem("Entity set 'AppDBContent.Photos'  is null.");
+            }
+            var photo = await _context.Photos.FindAsync(id);
+            if (photo != null)
+            {
+                System.IO.File.Delete(photo.ImageSrc);
+                _context.Photos.Remove(photo);
+                await _context.SaveChangesAsync();
+                if (photo.isCopied)
+                {
+                    var isCopiedPhoto = await _context2.isCopiedPhotos.Where(c => c.photoId == id).FirstAsync();
+                    _context2.isCopiedPhotos.Remove(isCopiedPhoto);
+                    await _context2.SaveChangesAsync();
+                }
+
+            }
+            return RedirectToAction(nameof(Index));
+        }
         private bool PhotoExists(int id)
         {
             return (_context.Photos?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
-

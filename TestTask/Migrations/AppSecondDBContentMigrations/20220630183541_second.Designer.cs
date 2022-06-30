@@ -3,17 +3,19 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TestTask.Data;
 
 #nullable disable
 
-namespace TestTask.Migrations
+namespace TestTask.Migrations.AppSecondDBContentMigrations
 {
-    [DbContext(typeof(AppFirstDBContent))]
-    partial class AppFirstDBContentModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AppSecondDBContent))]
+    [Migration("20220630183541_second")]
+    partial class second
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +24,7 @@ namespace TestTask.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("TestTask.Models.Photo", b =>
+            modelBuilder.Entity("TestTask.Models.isCopiedPhoto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,23 +32,16 @@ namespace TestTask.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Description")
+                    b.Property<byte[]>("photoData")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("ImageSrc")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("isCopied")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("uploadTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("photoId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Photos");
+                    b.ToTable("isCopiedPhotos");
                 });
 #pragma warning restore 612, 618
         }

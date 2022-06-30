@@ -1,10 +1,10 @@
 ﻿@model TestTask.Models.Photo
 
 @{
-    ViewData["Title"] = "Редактировать фото";
+    ViewData["Title"] = "Редактировать запись";
 }
 
-<h1>Редактировать фото</h1>
+<h1>Редактировать запись</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -16,10 +16,10 @@
             <input type="hidden" asp-for="isCopied" />
             <div class="form-group">
                 <label class="control-label">Discription</label>
-                <input asp-for="Desription" class="form-control" />
-                <span asp-validation-for="Desription" class="text-danger"></span>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <img src="@Model.ImageSrc"/>
+            <img src="~/Photos/@Model.ImageSrc"/>
             <div class="form-group">
                 <input type="submit" value="Сохранить" class="btn btn-primary" />
             </div>
@@ -28,7 +28,7 @@
 </div>
 
 <div>
-    <a asp-action="GetPhotos">Back to List</a>
+    <a asp-action="Index">Назад к списку</a>
 </div>
 
 @section Scripts {

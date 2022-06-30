@@ -4,31 +4,29 @@ namespace TestTask.Models
 {
     public class Photo
     {
+        public Photo()
+        {
+            this.isCopied = false;
+        }
         public int Id { get; set; }
-        public string Desription { get; set; }
+        public string Description { get; set; }
         [NotMapped]
         public IFormFile Image { get; set; }
-        public string ImageSrc { get; set; }
+        public string? ImageSrc { get; set; }
         public DateTime uploadTime { get; set; }
+        public bool isCopied { get; set; }
 
-        public bool isCopied 
+        public string getSrc(Photo photo)
         {
-            get { return isCopied; }
-            set { this.isCopied = false; }
-        }
-
-        public string getSrc()
-        {
-            string path = Directory.GetCurrentDirectory() + "wwwroot/Photos";
+            string path = Directory.GetCurrentDirectory() + "/wwwroot/Photos";
             if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
-            FileInfo fileInfo = new FileInfo(Image.FileName);
-            string fileName = Image.FileName;
-            string src = path + fileName;
-            using (var stream = new FileStream(src, FileMode.Create))
+            string fileName = photo.Image.FileName;
+            path = Path.Combine(path, fileName);
+            using (var stream = new FileStream(path, FileMode.Create))
             {
                 this.Image.CopyTo(stream);
             }
-            return src;
+            return fileName;
         }
     }
 }
