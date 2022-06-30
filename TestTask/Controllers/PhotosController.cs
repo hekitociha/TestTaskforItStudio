@@ -141,7 +141,8 @@ namespace TestTask.Controllers
             var photo = await _context.Photos.FindAsync(id);
             if (photo != null)
             {
-                System.IO.File.Delete(photo.ImageSrc);
+                string path = Directory.GetCurrentDirectory() + "/wwwroot/Photos/" + photo.ImageSrc;
+                System.IO.File.Delete(path);
                 _context.Photos.Remove(photo);
                 await _context.SaveChangesAsync();
                 if (photo.isCopied)
